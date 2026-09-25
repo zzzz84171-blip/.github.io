@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZT SHOP</title>
+
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: #f5f5f5;
+  color: #111;
+}
+
+header {
+  background: #111;
+  color: white;
+  padding: 22px;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+header h1 {
+  font-size: 28px;
+  letter-spacing: 2px;
+}
+
+.cart-button {
+  margin-top: 12px;
+  background: white;
+  color: black;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 25px 15px;
+}
+
+.hero {
+  background: #111;
+  color: white;
+  padding: 35px 20px;
+  border-radius: 15px;
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.hero h2 {
+  font-size: 30px;
+  margin-bottom: 10px;
+}
+
+.products {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+.product {
+  background: white;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+.product img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  background: #ddd;
+}
+
+.product-info {
+  padding: 15px;
+}
+
+.product h3 {
+  margin-bottom: 8px;
+}
+
+.price {
+  font-size: 19px;
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+
+.add {
+  width: 100%;
+  background: #111;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.add:hover {
+  opacity: 0.8;
+}
+
+.cart {
+  display: none;
+  background: white;
+  margin-top: 25px;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+}
+
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #ddd;
+  gap: 10px;
+}
+
+.remove {
+  background: #e53935;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.total {
+  font-size: 22px;
+  font-weight: bold;
+  margin: 20px 0;
+}
+
+.whatsapp {
+  width: 100%;
+  background: #25D366;
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 17px;
+  font-weight: bold;
+}
+
+.empty {
+  color: #777;
+  padding: 10px 0;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>ZT SHOP</h1>
+  <button class="cart-button" onclick="showCart()">
+    🛒 Mon panier (<span id="cartCount">0</span>)
+  </button>
+</header>
+
+<div class="container">
+
+  <div class="hero">
+    <h2>Bienvenue chez ZT SHOP</h2>
+    <p>Des pièces sélectionnées à prix intéressants.</p>
+  </div>
+
+  <div class="products">
+
+    <!-- PRODUIT 1 -->
+    <div class="product">
+      <img src="https://placehold.co/600x700?text=Produit+1" alt="Produit 1">
+      <div class="product-info">
+        <h3>Maison Margiela T-shirt</h3>
+        <div class="price">35 €</div>
+        <button class="add" onclick="addToCart('Maison Margiela T-shirt',35)">
+          Ajouter au panier
+        </button>
+      </div>
+    </div>
+
+    <!-- PRODUIT 2 -->
+    <div class="product">
+      <img src="https://placehold.co/600x700?text=Produit+2" alt="Produit 2">
+      <div class="product-info">
+        <h3>CP Company Pull</h3>
+        <div class="price">45 €</div>
+        <button class="add" onclick="addToCart('CP Company Pull',45)">
+          Ajouter au panier
+        </button>
+      </div>
+    </div>
+
+    <!-- PRODUIT 3 -->
+    <div class="product">
+      <img src="https://placehold.co/600x700?text=Produit+3" alt="Produit 3">
+      <div class="product-info">
+        <h3>Ralph Lauren Pull</h3>
+        <div class="price">50 €</div>
+        <button class="add" onclick="addToCart('Ralph Lauren Pull',50)">
+          Ajouter au panier
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PANIER -->
+  <div class="cart" id="cart">
+    <h2>🛒 Mon panier</h2>
+
+    <div id="cartItems"></div>
+
+    <div class="total">
+      Total : <span id="total">0</span> €
+    </div>
+
+    <button class="whatsapp" onclick="orderWhatsApp()">
+      🟢 Commander sur WhatsApp
+    </button>
+  </div>
+
+</div>
+
+<script>
+
+let cart = [];
+
+/* AJOUTER AU PANIER */
+function addToCart(name, price) {
+
+  const existing = cart.find(item => item.name === name);
+
+  if (existing) {
+    existing.quantity++;
+  } else {
+    cart.push({
+      name: name,
+      price: price,
+      quantity: 1
+    });
+  }
+
+  updateCart();
+
+  alert("Article ajouté au panier 🛒");
+}
+
+/* AFFICHER LE PANIER */
+function showCart() {
+
+  const cartElement = document.getElementById("cart");
+
+  cartElement.style.display = "block";
+
+  cartElement.scrollIntoView({
+    behavior: "smooth"
+  });
+}
+
+/* METTRE À JOUR LE PANIER */
+function updateCart() {
+
+  const cartItems = document.getElementById("cartItems");
+
+  cartItems.innerHTML = "";
+
+  let total = 0;
+  let count = 0;
+
+  if (cart.length === 0) {
+
+    cartItems.innerHTML =
+      '<div class="empty">Ton panier est vide.</div>';
+
+  } else {
+
+    cart.forEach((item, index) => {
+
+      total += item.price * item.quantity;
+      count += item.quantity;
+
+      const div = document.createElement("div");
+
+      div.className = "cart-item";
+
+      div.innerHTML = `
+        <div>
+          <strong>${item.name}</strong><br>
+          ${item.price} € × ${item.quantity}
+        </div>
+
+        <button class="remove" onclick="removeItem(${index})">
+          Supprimer
+        </button>
+      `;
+
+      cartItems.appendChild(div);
+
+    });
+  }
+
+  document.getElementById("total").textContent = total;
+  document.getElementById("cartCount").textContent = count;
+}
+
+/* SUPPRIMER */
+function removeItem(index) {
+
+  cart.splice(index, 1);
+
+  updateCart();
+}
+
+/* WHATSAPP */
+function orderWhatsApp() {
+
+  if (cart.length === 0) {
+
+    alert("Ton panier est vide.");
+
+    return;
+  }
+
+  /*
+  REMPLACE 33600000000 PAR TON NUMÉRO WHATSAPP
+  Exemple :
+  06 12 34 56 78
+  devient :
+  33612345678
+  */
+
+  const phone = "33600000000";
+
+  let message = "Bonjour, je souhaite commander :%0A%0A";
+
+  let total = 0;
+
+  cart.forEach(item => {
+
+    const subtotal = item.price * item.quantity;
+
+    total += subtotal;
+
+    message +=
+      "• " +
+      item.name +
+      " × " +
+      item.quantity +
+      " — " +
+      subtotal +
+      " €%0A";
+  });
+
+  message +=
+    "%0A💰 Total : " +
+    total +
+    " €%0A%0A" +
+    "Merci !";
+
+  window.open(
+    "https://wa.me/" + phone + "?text=" + message,
+    "_blank"
+  );
+}
+
+updateCart();
+
+</script>
+
+</body>
+</html>
